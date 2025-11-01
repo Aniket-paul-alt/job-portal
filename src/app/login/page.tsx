@@ -4,38 +4,30 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LoginUserData, loginUserSchema } from '@/features/auth/auth.schema';
 import { loginAction } from '@/features/auth/server/auth.actions';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Lock, Mail, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import React, { ChangeEvent, FormEvent, useState } from 'react'
+import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
-interface LoginFormData {
-  email: string;
-  password: string;
-}
-
 const Login: React.FC = () => {
-  const [formData, setFormData] = useState<LoginFormData>({
-    email: "",
-    password: "",
-  })
+  const {
+      register,
+      handleSubmit,
+      watch,
+      formState: { errors },
+    } = useForm({
+      resolver : zodResolver(loginUserSchema)
+    })
+  
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleInputChange = (name: string, value: string) => {
-    setFormData(prev => ({ ...prev, [name]: value }))
-  }
 
-  const handleSubmit = async(e: FormEvent) => {
-    e.preventDefault()
-    console.log(formData)
-
-    const loginData = {
-      email: formData.email.trim(),
-      password: formData.password,
-    }
-
-    const result = await loginAction(loginData)
+  const onSubmit = async(data: LoginUserData) => {
+    const result = await loginAction(data)
 
     if (result.status === "success") toast.success(result.message)
     else toast.error(result.message)
@@ -53,7 +45,7 @@ const Login: React.FC = () => {
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 
             {/* Email Field */}
             <div className="space-y-2">
@@ -65,10 +57,7 @@ const Login: React.FC = () => {
                   type="email"
                   placeholder="Enter your email"
                   required
-                  value={formData.email}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("email", e.target.value)
-                  }
+                  {...register("email")}
                   className={`pl-10 `}
                 />
               </div>
@@ -84,10 +73,7 @@ const Login: React.FC = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a strong password"
                   required
-                  value={formData.password}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleInputChange("password", e.target.value)
-                  }
+                  {...register("password")}
                   className={`pl-10 pr-10 `}
                 />
 
