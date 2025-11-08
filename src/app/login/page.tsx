@@ -17,7 +17,6 @@ const Login: React.FC = () => {
   const {
       register,
       handleSubmit,
-      watch,
       formState: { errors },
     } = useForm({
       resolver : zodResolver(loginUserSchema)
@@ -27,8 +26,9 @@ const Login: React.FC = () => {
 
 
   const onSubmit = async(data: LoginUserData) => {
+    console.log(data)
     const result = await loginAction(data)
-
+    console.log(result)
     if (result.status === "success") toast.success(result.message)
     else toast.error(result.message)
   }

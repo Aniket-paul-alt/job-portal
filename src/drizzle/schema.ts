@@ -17,7 +17,7 @@ export const sessions = mysqlTable("sessions", {
     id: varchar('id',{length:255}).primaryKey(),
     userId: int('user_id').notNull().references(()=> users.id, {onDelete: "cascade"}),
     userAgent: text('user_agent').notNull(),
-    ip: varchar('id',{length:255}).notNull(),
+    ip: varchar('ip',{length:255}).notNull(),
     expiresAt: timestamp('expires_at').notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

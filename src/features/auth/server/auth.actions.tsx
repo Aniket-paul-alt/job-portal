@@ -5,6 +5,7 @@ import { users } from "@/drizzle/schema";
 import argon2 from "argon2";
 import { eq, or } from "drizzle-orm";
 import { LoginUserData, loginUserSchema, RegisterUserData, registerUserSchema } from "../auth.schema";
+import { createSessionAndSetCookies } from "./use-cases/sessions";
 
 export const registerAction = async (data: RegisterUserData) => {
     // console.log(formData)
@@ -34,7 +35,9 @@ export const registerAction = async (data: RegisterUserData) => {
 
         const hashPassword = await argon2.hash(password)
 
-        await db.insert(users).values({ name, userName, email, role, password: hashPassword })
+        const [result] = await db.insert(users).values({ name, userName, email, role, password: hashPassword })
+        console.log("insertId", result)
+        await createSessionAndSetCookies(result.insertId)
 
         return {
             status: "success",
@@ -62,11 +65,11 @@ export const loginAction = async (data: LoginUserData) => {
         // console.log(validatedData, validatedError)
 
         if(validatedError) return {status:"error", message:validatedError.issues[0].message}
-
+        console.log(validatedError)
         const { email, password } = validatedData
         // const { email, password } = data
         const [user] = await db.select().from(users).where(eq(users.email, email))
-        // console.log(user)
+        console.log(user)
 
         if (!user) {
             return { status: "error", message: "Invalid Credentials!!" }
@@ -74,9 +77,12 @@ export const loginAction = async (data: LoginUserData) => {
 
         const isPasswordValid = await argon2.verify(user.password, password)
         if (!isPasswordValid) return { status: "error", message: "Invalid Credentials!!" }
+        console.log(isPasswordValid)
+
+        await createSessionAndSetCookies(user.id)
 
         return { status: "success", message: "Login Successfully" }
     } catch (error) {
-        return {status: "error", message:"Failed to Login!!"}
+        return {status: "error", message:`Failed to Login!! ${error}`}
     }
 }

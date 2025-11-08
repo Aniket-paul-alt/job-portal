@@ -11,7 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Lock, Mail, User, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import React, { ChangeEvent, FormEvent, useState } from 'react'
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
 
@@ -21,8 +21,9 @@ const Register: React.FC = () => {
     handleSubmit,
     watch,
     formState: { errors },
+    control
   } = useForm({
-    resolver : zodResolver(registerUserWithConfirmSchema)
+    resolver: zodResolver(registerUserWithConfirmSchema)
   })
 
   const [showPassword, setShowPassword] = useState(false)
@@ -59,7 +60,7 @@ const Register: React.FC = () => {
                   placeholder="Enter your full name"
                   required
                   {...register("name")}
-                  className={`pl-10 ${errors.userName ? "border-destructive":""}`}
+                  className={`pl-10 ${errors.userName ? "border-destructive" : ""}`}
                 />
               </div>
               {
@@ -80,7 +81,7 @@ const Register: React.FC = () => {
                   placeholder="Choose a username"
                   required
                   {...register("userName")}
-                  className={`pl-10 ${errors.userName ? "border-destructive":""}`}
+                  className={`pl-10 ${errors.userName ? "border-destructive" : ""}`}
                 />
               </div>
               {
@@ -101,7 +102,7 @@ const Register: React.FC = () => {
                   placeholder="Enter your email"
                   required
                   {...register("email")}
-                  className={`pl-10 ${errors.userName ? "border-destructive":""}`}
+                  className={`pl-10 ${errors.userName ? "border-destructive" : ""}`}
                 />
               </div>
               {
@@ -114,17 +115,21 @@ const Register: React.FC = () => {
             {/* Role Selection */}
             <div className="space-y-2 w-full">
               <Label htmlFor="role">I am a *</Label>
-              <Select
-                {...register("role")}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="applicant">Job Applicant</SelectItem>
-                  <SelectItem value="employer">Employer</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller name='role' control={control} render={({field}) => (
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="applicant">Job Applicant</SelectItem>
+                    <SelectItem value="employer">Employer</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}>
+              </Controller>
             </div>
 
             {/* Password Field */}
@@ -138,7 +143,7 @@ const Register: React.FC = () => {
                   placeholder="Create a strong password"
                   required
                   {...register("password")}
-                  className={`pl-10 pr-10 ${errors.userName ? "border-destructive":""}`}
+                  className={`pl-10 pr-10 ${errors.userName ? "border-destructive" : ""}`}
                 />
 
                 <Button
@@ -173,7 +178,7 @@ const Register: React.FC = () => {
                   placeholder="Confirm your password"
                   required
                   {...register("confirmPassword")}
-                  className={`pl-10 pr-10 ${errors.userName ? "border-destructive":""}`}
+                  className={`pl-10 pr-10 ${errors.userName ? "border-destructive" : ""}`}
                 />
                 <Button
                   type="button"
