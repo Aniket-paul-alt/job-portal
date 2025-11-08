@@ -10,6 +10,7 @@ import { registerAction } from '@/features/auth/server/auth.actions';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Lock, Mail, User, UserCheck } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, FormEvent, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -26,13 +27,19 @@ const Register: React.FC = () => {
     resolver: zodResolver(registerUserWithConfirmSchema)
   })
 
+  const router = useRouter()
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const onSubmit = async (data: RegisterUserWithConfirmSchemaData) => {
     const result = await registerAction(data)
 
-    if (result.status === "success") toast.success(result.message)
+    if (result.status === "success") {
+      toast.success(result.message)
+      if(data.role === "employer") router.push("/employer-dashboard")
+      else router.push("/")
+    }
     else toast.error(result.message)
   }
 
